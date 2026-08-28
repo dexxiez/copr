@@ -4,6 +4,18 @@
 # subpackage would fail the build.
 %global debug_package %{nil}
 
+# Exact Zig version required by vendor/libghostty-vt (build.zig.zon:
+# minimum_zig_version, enforced as an equality check by requireZig).
+# When herdr bumps this, update the version and both checksums together;
+# they come from https://ziglang.org/download/index.json
+%global zig_version 0.15.2
+%ifarch x86_64
+%global zig_sha256 02aa270f183da276e5b5920b1dac44a63f1a49e55050ebde3aecc9eb82f93239
+%endif
+%ifarch aarch64
+%global zig_sha256 958ed7d1e00d0ea76590d27666efbf7a932281b3d7ba0c6b01b0ff26498f667f
+%endif
+
 Name:           herdr
 Version:        0.8.2
 Release:        1%{?dist}
@@ -17,8 +29,13 @@ BuildRequires:  rust
 BuildRequires:  cargo
 BuildRequires:  gcc
 # build.rs invokes `zig build` to compile the vendored libghostty-vt static
-# library. The vendored copy sets minimum_zig_version 0.15.2.
-BuildRequires:  zig >= 0.15.2
+# library. Ghostty's requireZig() demands an *exact* Zig version, not a
+# minimum, and Fedora's zig package moves ahead of it (F44 now ships 0.16.0,
+# which also changed std.Io.Dir.readFileAlloc's signature). So the exact
+# toolchain is fetched below rather than taken from the buildroot.
+BuildRequires:  curl
+BuildRequires:  tar
+BuildRequires:  xz
 
 # Notification sounds are played by shelling out to whichever of these is
 # present; the binary degrades silently if none is. pw-play ships in
@@ -39,6 +56,17 @@ so several agents can be kept busy from a single terminal.
 
 %build
 export CARGO_HOME="%{_builddir}/.cargo"
+
+# Fetch the exact Zig the vendored libghostty-vt expects. build.rs runs
+# whatever $ZIG points at, falling back to "zig" on PATH.
+ZIG_DIST="zig-%{_arch}-linux-%{zig_version}"
+curl -sSfL --retry 3 -o "${ZIG_DIST}.tar.xz" \
+  "https://ziglang.org/download/%{zig_version}/${ZIG_DIST}.tar.xz"
+echo "%{zig_sha256}  ${ZIG_DIST}.tar.xz" | sha256sum -c -
+tar xf "${ZIG_DIST}.tar.xz"
+export ZIG="$PWD/${ZIG_DIST}/zig"
+"$ZIG" version
+
 # Zig needs writable cache directories and, on first run, fetches the
 # vendored library's own dependencies over the network.
 export ZIG_GLOBAL_CACHE_DIR="%{_builddir}/.cache/zig"
