@@ -101,5 +101,5 @@ target/release/%{name} --version
 %{_datadir}/fish/vendor_completions.d/%{name}.fish
 
 %changelog
-* Fri Aug 28 2026 Your Name <you@example.com> - 0.8.2-1
+* Fri Aug 28 2026 Dexxiez <toby@boulton.net.au> - 0.8.2-1
 - Initial package

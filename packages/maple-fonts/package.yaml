@@ -1,0 +1,5 @@
+name: maple-fonts
+upstream: subframe7536/maple-font
+auto: true
+tag_prefix: "v"
+skip_prerelease: true

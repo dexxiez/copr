@@ -1,0 +1,5 @@
+name: neovim
+upstream: neovim/neovim
+auto: true
+tag_prefix: "v"
+skip_prerelease: true
