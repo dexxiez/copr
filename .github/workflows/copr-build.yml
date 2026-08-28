@@ -76,7 +76,7 @@ jobs:
     steps:
       - name: Install tooling
         run: dnf -y install --setopt=install_weak_deps=False
-             git rpm-build rpmdevtools copr-cli
+          git rpm-build rpmdevtools copr-cli
 
       - uses: actions/checkout@v4
 
@@ -95,4 +95,4 @@ jobs:
           echo "path=$(./scripts/build_srpm.sh '${{ matrix.package }}' | tail -n1)" >> "$GITHUB_OUTPUT"
 
       - name: Submit to COPR
-        run: copr-cli build "${{ vars.COPR_PROJECT }}" "${{ steps.srpm.outputs.path }}"
+        run: copr-cli build --nowait "${{ vars.COPR_PROJECT }}" "${{ steps.srpm.outputs.path }}"

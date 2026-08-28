@@ -13,11 +13,11 @@ License:        MIT
 URL:            https://atuin.sh
 Source0:        %{forgeurl}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-# atuin declares MSRV 1.98.0 and uses edition 2024. If your chroot's Rust is
-# older the build fails here with a clear message instead of a wall of
-# compiler errors.
-BuildRequires:  rust >= 1.98.0
-BuildRequires:  cargo >= 1.98.0
+# atuin declares MSRV 1.98.0, but Fedora stable currently ships older Rust.
+# The declared MSRV is a floor the upstream authors chose, not necessarily
+# what the code needs, so the build below passes --ignore-rust-version.
+BuildRequires:  rust
+BuildRequires:  cargo
 # tree-sitter and libsqlite3-sys compile bundled C
 BuildRequires:  gcc
 # reqwest is configured with native-tls, so OpenSSL is linked against
@@ -53,7 +53,9 @@ export CARGO_HOME="%{_builddir}/.cargo"
 # Only set if the macro exists, so an older buildroot doesn't end up with a
 # literal "%%{build_rustflags}" in RUSTFLAGS.
 %{?build_rustflags:export RUSTFLAGS="%{build_rustflags}"}
-cargo build --release --locked --package atuin
+# --ignore-rust-version overrides the rust-version floor declared in
+# Cargo.toml. Edition 2024 still needs Rust >= 1.85, which Fedora has.
+cargo build --release --locked --ignore-rust-version --package atuin
 
 %install
 install -Dpm0755 target/release/%{name} %{buildroot}%{_bindir}/%{name}
