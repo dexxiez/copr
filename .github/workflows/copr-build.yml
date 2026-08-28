@@ -1,0 +1,93 @@
+name: COPR build
+
+on:
+  push:
+    branches: [main]
+    paths: ["packages/**"]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Comma-separated package names, or "all"'
+        required: true
+        default: all
+  workflow_call:
+    inputs:
+      packages:
+        description: 'Comma-separated package names, or "all"'
+        required: true
+        type: string
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.pick.outputs.matrix }}
+      any: ${{ steps.pick.outputs.any }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: pick
+        name: Work out which packages to build
+        run: |
+          set -euo pipefail
+          REQUEST="${{ inputs.packages || github.event.inputs.packages }}"
+
+          if [[ -z "$REQUEST" ]]; then
+            # push event: only packages whose files actually changed
+            BEFORE="${{ github.event.before }}"
+            if [[ -z "$BEFORE" || "$BEFORE" == "0000000000000000000000000000000000000000" ]]; then
+              BEFORE="${{ github.sha }}^"
+            fi
+            NAMES=$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- packages/ \
+                    | cut -d/ -f2 | sort -u)
+          elif [[ "$REQUEST" == "all" ]]; then
+            NAMES=$(ls packages)
+          else
+            NAMES=$(echo "$REQUEST" | tr ',' '\n' | sed 's/ //g')
+          fi
+
+          # keep only names that really exist
+          VALID=()
+          for n in $NAMES; do
+            [[ -f "packages/$n/$n.spec" ]] && VALID+=("$n")
+          done
+
+          MATRIX=$(printf '%s\n' "${VALID[@]:-}" | grep -v '^$' | jq -R . | jq -sc '{package: .}')
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          COUNT=$(echo "$MATRIX" | jq '.package | length')
+          echo "any=$([[ $COUNT -gt 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "Building: ${VALID[*]:-nothing}"
+
+  build:
+    needs: prepare
+    if: needs.prepare.outputs.any == 'true'
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.matrix) }}
+    steps:
+      - name: Install tooling
+        run: dnf -y install --setopt=install_weak_deps=False
+             git rpm-build rpmdevtools copr-cli
+
+      - uses: actions/checkout@v4
+
+      - name: Write COPR credentials
+        env:
+          COPR_CONFIG: ${{ secrets.COPR_CONFIG }}
+        run: |
+          mkdir -p ~/.config
+          printf '%s' "$COPR_CONFIG" > ~/.config/copr
+          chmod 600 ~/.config/copr
+
+      - name: Build SRPM
+        id: srpm
+        run: |
+          chmod +x scripts/build_srpm.sh
+          echo "path=$(./scripts/build_srpm.sh '${{ matrix.package }}' | tail -n1)" >> "$GITHUB_OUTPUT"
+
+      - name: Submit to COPR
+        run: copr-cli build "${{ vars.COPR_PROJECT }}" "${{ steps.srpm.outputs.path }}"

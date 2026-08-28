@@ -1,0 +1,67 @@
+name: Check upstream updates
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # daily, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      bumped: ${{ steps.check.outputs.bumped }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pyyaml
+
+      - id: check
+        name: Check for new releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGER: ${{ vars.PACKAGER }}
+        run: |
+          RESULT=$(python scripts/check_updates.py)
+          echo "$RESULT" > /tmp/result.json
+          echo "bumped=$(jq -r '[.bumped[].name] | join(",")' /tmp/result.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Commit bumped specs
+        if: steps.check.outputs.bumped != ''
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/
+          git commit -m "chore: bump ${{ steps.check.outputs.bumped }}"
+          git push
+
+      - name: Open issues for manual packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          jq -c '.notices[]' /tmp/result.json | while read -r n; do
+            NAME=$(echo "$n" | jq -r .name)
+            NEW=$(echo "$n" | jq -r .new)
+            OLD=$(echo "$n" | jq -r .old)
+            TITLE="$NAME: upstream released $NEW"
+            EXISTING=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number')
+            if [[ -z "$EXISTING" ]]; then
+              gh issue create --title "$TITLE" \
+                --body "Packaged version is \`$OLD\`, upstream is now \`$NEW\`. This package is set to manual updates — bump the spec by hand when ready."
+            fi
+          done
+
+  build:
+    needs: check
+    if: needs.check.outputs.bumped != ''
+    uses: ./.github/workflows/copr-build.yml
+    secrets: inherit
+    with:
+      packages: ${{ needs.check.outputs.bumped }}
