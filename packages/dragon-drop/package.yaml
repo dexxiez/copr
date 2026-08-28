@@ -1,0 +1,5 @@
+name: dragon-drop
+upstream: mwh/dragon
+auto: true
+tag_prefix: "v"
+skip_prerelease: true
