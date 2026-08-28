@@ -1,0 +1,5 @@
+name: herdr
+upstream: herdrdev/herdr
+auto: true
+tag_prefix: "v"
+skip_prerelease: true
