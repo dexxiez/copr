@@ -37,8 +37,13 @@ jobs:
           if [[ -z "$REQUEST" ]]; then
             # push event: only packages whose files actually changed
             BEFORE="${{ github.event.before }}"
-            if [[ -z "$BEFORE" || "$BEFORE" == "0000000000000000000000000000000000000000" ]]; then
-              BEFORE="${{ github.sha }}^"
+            # On the first push to a branch, `before` is all zeros. On a force
+            # push (or after history rewrite) it may point at a commit that no
+            # longer exists. In both cases fall back to git's empty tree, which
+            # makes the diff report every tracked file.
+            if [[ -z "$BEFORE" ]] \
+               || ! git rev-parse --verify --quiet "${BEFORE}^{commit}" >/dev/null; then
+              BEFORE="$(git hash-object -t tree /dev/null)"
             fi
             NAMES=$(git diff --name-only "$BEFORE" "${{ github.sha }}" -- packages/ \
                     | cut -d/ -f2 | sort -u)
