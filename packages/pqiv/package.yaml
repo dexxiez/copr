@@ -1,0 +1,5 @@
+name: pqiv
+upstream: phillipberndt/pqiv
+auto: true
+tag_prefix: ""
+skip_prerelease: true
