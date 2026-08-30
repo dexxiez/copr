@@ -57,16 +57,31 @@ def release_tags(repo: str, skip_prerelease: bool = True) -> list[str]:
     return tags
 
 
+# A tag we are willing to treat as a version: starts with a digit, then only
+# digits, dots, dashes, underscores and word characters. Rules out upstream
+# aliases and asset tags like "stable", "cn-base" or "MapleX".
+VERSION_TAG = re.compile(r"^\d[\w._-]*$")
+
+
+def is_version(v: str) -> bool:
+    return bool(VERSION_TAG.match(v))
+
+
 def vkey(v: str):
-    """Rough version sort key: split into numeric and text chunks."""
-    return [int(p) if p.isdigit() else p for p in re.split(r"[._-]", v)]
+    """Rough version sort key: split into numeric and text chunks.
+
+    Each chunk becomes a (rank, number, text) tuple so numeric and textual
+    chunks stay mutually comparable — numbers sort before text, so "1.2"
+    beats "1.2rc1".
+    """
+    key = []
+    for p in re.split(r"[._-]", v):
+        key.append((0, int(p), "") if p.isdigit() else (1, 0, p))
+    return key
 
 
 def newer(new: str, old: str) -> bool:
-    try:
-        return vkey(new) > vkey(old)
-    except TypeError:           # mixed int/str comparison
-        return new != old
+    return vkey(new) > vkey(old)
 
 
 def spec_version(text: str) -> str | None:
@@ -112,6 +127,10 @@ def main() -> int:
             t[len(prefix):] if prefix and t.startswith(prefix) else t
             for t in tags
         ]
+        versions = [v for v in versions if is_version(v)]
+        if not versions:
+            print(f"{name}: no version-like release tags", file=sys.stderr)
+            continue
 
         # `pin` is an fnmatch pattern against the upstream version. "18.20.1"
         # holds the package at exactly that release; "18.20.*" follows the
