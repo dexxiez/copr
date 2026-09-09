@@ -18,7 +18,7 @@
 
 Name:           herdr
 Version:        0.9.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Terminal workspace manager for AI coding agents
 
 License:        Apache-2.0
@@ -36,6 +36,10 @@ BuildRequires:  gcc
 BuildRequires:  curl
 BuildRequires:  tar
 BuildRequires:  xz
+# Zig's own HTTP client loads the system CA bundle to fetch libghostty-vt's
+# dependencies; without this the buildroot may have no certs and `zig build`
+# dies with TlsInitializationFailed.
+BuildRequires:  ca-certificates
 
 # Notification sounds are played by shelling out to whichever of these is
 # present; the binary degrades silently if none is. pw-play ships in
@@ -101,6 +105,9 @@ target/release/%{name} --version
 %{_datadir}/fish/vendor_completions.d/%{name}.fish
 
 %changelog
+* Thu Sep 10 2026 Dexxiez <toby@boulton.net.au> - 0.9.0-2
+- Add explicit ca-certificates BuildRequires so zig can fetch over TLS
+
 * Tue Sep 08 2026 Dexxiez <toby@boulton.net.au> - 0.9.0-1
 - Update to 0.9.0
 
