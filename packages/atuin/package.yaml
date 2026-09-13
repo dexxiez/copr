@@ -2,5 +2,5 @@ name: atuin
 upstream: atuinsh/atuin
 auto: false
 tag_prefix: "v"
-pin: "18.20.1"
+pin: "18.22.0"
 skip_prerelease: true
