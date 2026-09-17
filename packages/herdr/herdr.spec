@@ -17,8 +17,8 @@
 %endif
 
 Name:           herdr
-Version:        0.9.0
-Release:        2%{?dist}
+Version:        0.9.1
+Release:        1%{?dist}
 Summary:        Terminal workspace manager for AI coding agents
 
 License:        Apache-2.0
@@ -105,6 +105,9 @@ target/release/%{name} --version
 %{_datadir}/fish/vendor_completions.d/%{name}.fish
 
 %changelog
+* Thu Sep 17 2026 Dexxiez <toby@boulton.net.au> - 0.9.1-1
+- Update to 0.9.1
+
 * Thu Sep 10 2026 Dexxiez <toby@boulton.net.au> - 0.9.0-2
 - Add explicit ca-certificates BuildRequires so zig can fetch over TLS
 
