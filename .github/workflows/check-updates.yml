@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       bumped: ${{ steps.check.outputs.bumped }}
+      sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@v4
 
@@ -34,6 +35,7 @@ jobs:
           echo "bumped=$(jq -r '[.bumped[].name] | join(",")' /tmp/result.json)" >> "$GITHUB_OUTPUT"
 
       - name: Commit bumped specs
+        id: commit
         if: steps.check.outputs.bumped != ''
         run: |
           git config user.name  "github-actions[bot]"
@@ -41,6 +43,7 @@ jobs:
           git add packages/
           git commit -m "chore: bump ${{ steps.check.outputs.bumped }}"
           git push
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Open issues for manual packages
         env:
@@ -65,3 +68,4 @@ jobs:
     secrets: inherit
     with:
       packages: ${{ needs.check.outputs.bumped }}
+      ref: ${{ needs.check.outputs.sha }}

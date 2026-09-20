@@ -16,6 +16,10 @@ on:
         description: 'Comma-separated package names, or "all"'
         required: true
         type: string
+      ref:
+        description: "Commit SHA or ref to build from"
+        required: false
+        type: string
 
 jobs:
   prepare:
@@ -26,6 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref || github.sha }}
           fetch-depth: 0
 
       - id: pick
@@ -79,6 +84,8 @@ jobs:
           git rpm-build rpmdevtools copr-cli
 
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Write COPR credentials
         env:
