@@ -8,17 +8,17 @@
 # minimum_zig_version, enforced as an equality check by requireZig).
 # When herdr bumps this, update the version and both checksums together;
 # they come from https://ziglang.org/download/index.json
-%global zig_version 0.15.2
+%global zig_version 0.16.0
 %ifarch x86_64
-%global zig_sha256 02aa270f183da276e5b5920b1dac44a63f1a49e55050ebde3aecc9eb82f93239
+%global zig_sha256 70e49664a74374b48b51e6f3fdfbf437f6395d42509050588bd49abe52ba3d00
 %endif
 %ifarch aarch64
-%global zig_sha256 958ed7d1e00d0ea76590d27666efbf7a932281b3d7ba0c6b01b0ff26498f667f
+%global zig_sha256 ea4b09bfb22ec6f6c6ceac57ab63efb6b46e17ab08d21f69f3a48b38e1534f17
 %endif
 
 Name:           herdr
 Version:        0.9.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Terminal workspace manager for AI coding agents
 
 License:        Apache-2.0
@@ -105,6 +105,9 @@ target/release/%{name} --version
 %{_datadir}/fish/vendor_completions.d/%{name}.fish
 
 %changelog
+* Thu Sep 24 2026 Dexxiez <toby@boulton.net.au> - 0.9.1-2
+- Bump pinned Zig to 0.16.0, required by vendored libghostty-vt in 0.9.1
+
 * Thu Sep 17 2026 Dexxiez <toby@boulton.net.au> - 0.9.1-1
 - Update to 0.9.1
 
