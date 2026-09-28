@@ -51,6 +51,7 @@ Push to `main`; only packages whose files changed under `packages/` get rebuilt 
 
 - `name` — must match the directory and `<name>.spec`.
 - `upstream` — `owner/repo` on GitHub; releases are read via the GitHub API.
+- `git` / `branch` — track a branch head instead of releases (any git host, via `git ls-remote`; `branch` defaults to `main`). Replaces `upstream`; `tag_prefix`/`skip_prerelease`/`pin` are ignored. Spec needs `%global commit <sha>` and `Version: <base>^<YYYYMMDD>git<shortsha>`; the checker rewrites both, leaving `<base>` alone. Example: `packages/blahaj/`.
 - `auto` — `true`: `check_updates.py` bumps `Version:`/`Release:`/`%changelog` in the spec automatically and commits. `false`: only opens/reuses a GitHub issue titled `<name>: upstream released <version>`.
 - `tag_prefix` — stripped from release tags before comparing (default `"v"`).
 - `skip_prerelease` — default `true`.

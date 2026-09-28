@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""Check each package against its upstream GitHub releases.
+"""Check each package against its upstream GitHub releases or git branch.
 
 For packages with `auto: true`, bump the spec (Version, Release, %changelog).
 For packages with `auto: false`, just report that a new version exists.
+
+Packages with `git` + `branch` in package.yaml track the branch head instead
+of releases. Their spec carries `%global commit <sha>` and a snapshot
+`Version: <base>^<YYYYMMDD>git<shortsha>`; a new head rewrites both.
 
 Outputs JSON to stdout:
   {"bumped": [{"name":..., "old":..., "new":...}],
@@ -18,6 +22,7 @@ import fnmatch
 import json
 import os
 import re
+import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -97,15 +102,90 @@ def bump(text: str, new: str) -> str:
     return re.sub(r"^%changelog\s*\n", f"%changelog\n{entry}\n", text, count=1, flags=re.M)
 
 
+def branch_head(url: str, branch: str) -> str | None:
+    """Return the commit SHA at the tip of `branch`, via `git ls-remote`."""
+    try:
+        out = subprocess.run(
+            ["git", "ls-remote", url, f"refs/heads/{branch}"],
+            capture_output=True, text=True, check=True, timeout=60,
+        ).stdout
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+        print(f"  ! git ls-remote failed for {url}: {e}", file=sys.stderr)
+        return None
+    return out.split()[0] if out.strip() else None
+
+
+def spec_commit(text: str) -> str | None:
+    m = re.search(r"^%global\s+commit\s+(\S+)\s*$", text, re.M)
+    return m.group(1) if m else None
+
+
+def check_branch(meta: dict, text: str, current: str) -> tuple[str, str] | None:
+    """Return (new_version, new_commit) if the branch head moved, else None.
+
+    The snapshot date is the day of the check, not the commit date, so it
+    stays monotonic without needing a forge-specific API.
+    """
+    name, url, branch = meta["name"], meta["git"], meta.get("branch", "main")
+    head = branch_head(url, branch)
+    if not head:
+        return None
+    if head == spec_commit(text):
+        print(f"{name}: up to date ({branch} @ {head[:7]})", file=sys.stderr)
+        return None
+    base = current.split("^", 1)[0]
+    date = datetime.now(timezone.utc).strftime("%Y%m%d")
+    return f"{base}^{date}git{head[:7]}", head
+
+
+def set_commit(text: str, commit: str) -> str:
+    return re.sub(r"^(%global\s+commit\s+)\S+", rf"\g<1>{commit}", text, count=1, flags=re.M)
+
+
+def check_releases(meta: dict, current: str) -> str | None:
+    """Return the newest eligible release version if newer than `current`."""
+    name = meta["name"]
+    tags = release_tags(meta["upstream"], meta.get("skip_prerelease", True))
+    if not tags:
+        return None
+
+    prefix = meta.get("tag_prefix", "v") or ""
+    versions = [
+        t[len(prefix):] if prefix and t.startswith(prefix) else t
+        for t in tags
+    ]
+    versions = [v for v in versions if is_version(v)]
+    if not versions:
+        print(f"{name}: no version-like release tags", file=sys.stderr)
+        return None
+
+    # `pin` is an fnmatch pattern against the upstream version. "18.20.1"
+    # holds the package at exactly that release; "18.20.*" follows the
+    # 18.20 series only; unset (or "*") tracks the newest release.
+    pin = str(meta.get("pin", "*") or "*")
+    allowed = [v for v in versions if fnmatch.fnmatch(v, pin)]
+    if not allowed:
+        print(f"{name}: no release matches pin '{pin}'", file=sys.stderr)
+        return None
+
+    upstream_version = max(allowed, key=vkey)
+
+    if not newer(upstream_version, current):
+        pinned = " (pinned to '%s')" % pin if pin != "*" else ""
+        print(f"{name}: up to date ({current}){pinned}", file=sys.stderr)
+        return None
+
+    return upstream_version
+
+
 def main() -> int:
     bumped, notices = [], []
 
     for meta_file in sorted(PACKAGES.glob("*/package.yaml")):
         meta = yaml.safe_load(meta_file.read_text()) or {}
-        name = meta.get("name", meta_file.parent.name)
-        upstream = meta.get("upstream")
-        if not upstream:
-            print(f"{name}: no upstream set, skipping", file=sys.stderr)
+        name = meta.setdefault("name", meta_file.parent.name)
+        if not meta.get("upstream") and not meta.get("git"):
+            print(f"{name}: no upstream or git set, skipping", file=sys.stderr)
             continue
 
         spec_path = meta_file.parent / f"{name}.spec"
@@ -118,44 +198,26 @@ def main() -> int:
         if not current:
             continue
 
-        tags = release_tags(upstream, meta.get("skip_prerelease", True))
-        if not tags:
+        if meta.get("git"):
+            found = check_branch(meta, text, current)
+        else:
+            version = check_releases(meta, current)
+            found = (version, None) if version else None
+        if not found:
             continue
+        new_version, commit = found
 
-        prefix = meta.get("tag_prefix", "v") or ""
-        versions = [
-            t[len(prefix):] if prefix and t.startswith(prefix) else t
-            for t in tags
-        ]
-        versions = [v for v in versions if is_version(v)]
-        if not versions:
-            print(f"{name}: no version-like release tags", file=sys.stderr)
-            continue
-
-        # `pin` is an fnmatch pattern against the upstream version. "18.20.1"
-        # holds the package at exactly that release; "18.20.*" follows the
-        # 18.20 series only; unset (or "*") tracks the newest release.
-        pin = str(meta.get("pin", "*") or "*")
-        allowed = [v for v in versions if fnmatch.fnmatch(v, pin)]
-        if not allowed:
-            print(f"{name}: no release matches pin '{pin}'", file=sys.stderr)
-            continue
-
-        upstream_version = max(allowed, key=vkey)
-
-        if not newer(upstream_version, current):
-            pinned = " (pinned to '%s')" % pin if pin != "*" else ""
-            print(f"{name}: up to date ({current}){pinned}", file=sys.stderr)
-            continue
-
-        record = {"name": name, "old": current, "new": upstream_version}
+        record = {"name": name, "old": current, "new": new_version}
         if meta.get("auto", False):
-            spec_path.write_text(bump(text, upstream_version))
+            new_text = bump(text, new_version)
+            if commit:
+                new_text = set_commit(new_text, commit)
+            spec_path.write_text(new_text)
             bumped.append(record)
-            print(f"{name}: bumped {current} -> {upstream_version}", file=sys.stderr)
+            print(f"{name}: bumped {current} -> {new_version}", file=sys.stderr)
         else:
             notices.append(record)
-            print(f"{name}: update available {current} -> {upstream_version} (manual)", file=sys.stderr)
+            print(f"{name}: update available {current} -> {new_version} (manual)", file=sys.stderr)
 
     json.dump({"bumped": bumped, "notices": notices}, sys.stdout)
     return 0

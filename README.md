@@ -66,6 +66,32 @@ and then holds. To unpin, delete the line.
 Note that `pin` and `auto` are independent: a pinned package with `auto: true`
 will still build automatically, just only within the pinned range.
 
+## Tracking a git branch
+
+For projects without releases (or where you want the bleeding edge), point
+`package.yaml` at a git branch instead of `upstream`. Any host works — the
+checker uses `git ls-remote`, not a forge API:
+
+```yaml
+name: blahaj
+git: https://codeberg.org/GeopJr/BLAHAJ
+branch: main      # default: main
+auto: true
+```
+
+The spec must carry the pinned commit and a snapshot version:
+
+```spec
+%global commit 9651b5ee47e2d930f400cac31eabf39691c1150a
+%global shortcommit %(c=%{commit}; echo ${c:0:7})
+Version:        2.2.0^20260501git9651b5e
+Source0:        <repo>/archive/%{commit}.tar.gz#/%{name}-%{shortcommit}.tar.gz
+```
+
+When the branch head moves, the checker rewrites `%global commit` and the part
+of `Version:` after `^` (today's UTC date + short SHA). The base before `^` is
+yours to bump by hand. See `packages/blahaj/` for a full example.
+
 ## Manual builds
 
 Actions → **COPR build** → Run workflow → type a package name, a comma-separated
