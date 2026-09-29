@@ -17,8 +17,8 @@
 %endif
 
 Name:           herdr
-Version:        0.9.1
-Release:        2%{?dist}
+Version:        0.9.2
+Release:        1%{?dist}
 Summary:        Terminal workspace manager for AI coding agents
 
 License:        Apache-2.0
@@ -105,6 +105,9 @@ target/release/%{name} --version
 %{_datadir}/fish/vendor_completions.d/%{name}.fish
 
 %changelog
+* Tue Sep 29 2026 Dexxiez <toby@boulton.net.au> - 0.9.2-1
+- Update to 0.9.2
+
 * Thu Sep 24 2026 Dexxiez <toby@boulton.net.au> - 0.9.1-2
 - Bump pinned Zig to 0.16.0, required by vendored libghostty-vt in 0.9.1
 
