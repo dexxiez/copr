@@ -1,0 +1,5 @@
+name: stripe-cli
+upstream: stripe/stripe-cli
+auto: true
+tag_prefix: "v"
+skip_prerelease: true
