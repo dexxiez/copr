@@ -1,0 +1,5 @@
+name: hyprpicker
+upstream: hyprwm/hyprpicker
+auto: true
+tag_prefix: "v"
+skip_prerelease: true
