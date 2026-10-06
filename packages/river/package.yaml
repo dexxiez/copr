@@ -1,0 +1,4 @@
+name: river
+upstream: river/river
+forge: codeberg
+auto: true
