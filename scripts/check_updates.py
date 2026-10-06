@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Check each package against its upstream GitHub releases or git branch.
+"""Check each package against its upstream forge releases or git branch.
 
 For packages with `auto: true`, bump the spec (Version, Release, %changelog).
 For packages with `auto: false`, just report that a new version exists.
+
+Releases are read from GitHub by default; `forge: codeberg` in package.yaml
+reads them from Codeberg's Forgejo API instead (same response shape).
 
 Packages with `git` + `branch` in package.yaml track the branch head instead
 of releases. Their spec carries `%global commit <sha>` and a snapshot
@@ -36,21 +39,32 @@ PACKAGES = ROOT / "packages"
 PACKAGER = os.environ.get("PACKAGER", "Automated Build <builds@example.com>")
 TOKEN = os.environ.get("GITHUB_TOKEN", "")
 
+# Release-list endpoint per forge. Forgejo (Codeberg) mirrors GitHub's
+# release fields (tag_name, draft, prerelease), so parsing is shared.
+FORGE_RELEASES = {
+    "github": "https://api.github.com/repos/{repo}/releases?per_page=100",
+    "codeberg": "https://codeberg.org/api/v1/repos/{repo}/releases?limit=50",
+}
+
 
 def api(url: str):
-    req = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json"})
-    if TOKEN:
+    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    # Only GitHub gets the token; never leak it to other forges.
+    if TOKEN and url.startswith("https://api.github.com/"):
         req.add_header("Authorization", f"Bearer {TOKEN}")
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.load(r)
 
 
-def release_tags(repo: str, skip_prerelease: bool = True) -> list[str]:
+def release_tags(repo: str, forge: str = "github", skip_prerelease: bool = True) -> list[str]:
     """Return recent release tags, newest first."""
+    if forge not in FORGE_RELEASES:
+        print(f"  ! unknown forge '{forge}' for {repo}", file=sys.stderr)
+        return []
     try:
-        releases = api(f"https://api.github.com/repos/{repo}/releases?per_page=100")
+        releases = api(FORGE_RELEASES[forge].format(repo=repo))
     except urllib.error.HTTPError as e:
-        print(f"  ! GitHub API error for {repo}: {e}", file=sys.stderr)
+        print(f"  ! {forge} API error for {repo}: {e}", file=sys.stderr)
         return []
     tags = []
     for rel in releases:
@@ -145,7 +159,11 @@ def set_commit(text: str, commit: str) -> str:
 def check_releases(meta: dict, current: str) -> str | None:
     """Return the newest eligible release version if newer than `current`."""
     name = meta["name"]
-    tags = release_tags(meta["upstream"], meta.get("skip_prerelease", True))
+    tags = release_tags(
+        meta["upstream"],
+        meta.get("forge", "github"),
+        meta.get("skip_prerelease", True),
+    )
     if not tags:
         return None
 

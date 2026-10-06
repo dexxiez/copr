@@ -3,7 +3,7 @@
 RPM spec files and automation for my [COPR](https://copr.fedorainfracloud.org/) repo.
 
 Each package lives in `packages/<name>/` with a `.spec` file and a `package.yaml`
-describing where upstream lives. A daily job checks GitHub releases; packages
+describing where upstream lives. A daily job checks GitHub (or Codeberg) releases; packages
 marked `auto: true` get bumped and rebuilt on their own, the rest just raise an
 issue so I can do it by hand.
 
@@ -65,6 +65,18 @@ and then holds. To unpin, delete the line.
 
 Note that `pin` and `auto` are independent: a pinned package with `auto: true`
 will still build automatically, just only within the pinned range.
+
+## Codeberg releases
+
+Releases are read from GitHub unless the package says otherwise. For a project
+hosted on Codeberg, add `forge`:
+
+```yaml
+name: river
+upstream: river/river
+forge: codeberg
+auto: true
+```
 
 ## Tracking a git branch
 
