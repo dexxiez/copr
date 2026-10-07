@@ -1,0 +1,4 @@
+name: cowsay
+git: https://github.com/cowsay-org/cowsay
+branch: main
+auto: true
