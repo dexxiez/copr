@@ -4,7 +4,7 @@
 # Snapshot of the main branch: upstream has not tagged a release since the
 # printcraft -> pdfcraft rename. check_updates.py rewrites `commit` and the
 # snapshot suffix of Version together; the base (before `^`) is bumped by hand.
-%global commit 6974c6550d9dbcfdada41bc902c1aa16d3b72a0a
+%global commit 1b62d47fa769cfd4c37a64c9933572fc5de52a1f
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 
 # Rust release builds carry no debug info by default, so an empty debuginfo
@@ -12,8 +12,8 @@
 %global debug_package %{nil}
 
 Name:           pdfcraft
-Version:        0.2.1^20261008git6974c65
-Release:        2%{?dist}
+Version:        0.2.1^20261008git1b62d47
+Release:        1%{?dist}
 Summary:        Open-source native PDF workbench
 
 License:        MIT OR Apache-2.0
@@ -106,6 +106,9 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Thu Oct 08 2026 Dexxiez <toby@boulton.net.au> - 0.2.1^20261008git1b62d47-1
+- Update to 0.2.1^20261008git1b62d47
+
 * Thu Oct 08 2026 Dexxiez <toby@boulton.net.au> - 0.2.1^20261008git6974c65-2
 - Look for OCR models in /usr/share/pdfcraft/models
 - Recommend pdfcraft-ocr-models
