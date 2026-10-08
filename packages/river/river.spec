@@ -5,7 +5,7 @@
 
 Name:           river
 Version:        0.4.8
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Non-monolithic Wayland compositor
 
 # Compositor is GPL-3.0-only; protocol XML (protocols-devel) is MIT.
@@ -45,6 +45,14 @@ river-window-management-v1 protocol.
 Summary:        River Wayland protocol XML files
 License:        MIT
 BuildArch:      noarch
+Requires:       pkgconfig
+Requires:       pkgconfig(wayland-server)
+Requires:       pkgconfig(wayland-protocols)
+Requires:       pkgconfig(wlroots-0.20)
+Requires:       pkgconfig(xkbcommon) >= 1.12
+Requires:       pkgconfig(libevdev)
+Requires:       pkgconfig(libinput)
+Requires:       pkgconfig(pixman-1)
 
 %description    protocols-devel
 Protocol XML files and pkg-config metadata for writing river window managers
@@ -88,5 +96,8 @@ cp -a %{_builddir}/destdir/. %{buildroot}/
 %{_datadir}/river-protocols/
 
 %changelog
+* Thu Oct 08 2026 Dexxiez <toby@boulton.net.au> - 0.4.8-2
+- protocols-devel: require the devel packages river builds against
+
 * Tue Oct 06 2026 Dexxiez <toby@boulton.net.au> - 0.4.8-1
 - Initial package
