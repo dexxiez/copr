@@ -1,18 +1,24 @@
 %global forgeurl https://github.com/storytold/pdfcraft
 %global app_id   ai.storyteller.pdfcraft
 
+# Snapshot of the main branch: upstream has not tagged a release since the
+# printcraft -> pdfcraft rename. check_updates.py rewrites `commit` and the
+# snapshot suffix of Version together; the base (before `^`) is bumped by hand.
+%global commit 6974c6550d9dbcfdada41bc902c1aa16d3b72a0a
+%global shortcommit %(c=%{commit}; echo ${c:0:7})
+
 # Rust release builds carry no debug info by default, so an empty debuginfo
 # subpackage would fail the build. Skip it.
 %global debug_package %{nil}
 
 Name:           pdfcraft
-Version:        0.2.1
+Version:        0.2.1^20261008git6974c65
 Release:        1%{?dist}
 Summary:        Open-source native PDF workbench
 
 License:        MIT OR Apache-2.0
 URL:            %{forgeurl}
-Source0:        %{forgeurl}/archive/v%{version}/%{name}-%{version}.tar.gz
+Source0:        %{forgeurl}/archive/%{commit}.tar.gz#/%{name}-%{shortcommit}.tar.gz
 
 BuildRequires:  rust >= 1.90
 BuildRequires:  cargo
@@ -49,7 +55,7 @@ This build does not embed the optional craft-fonts set (Japanese UI/type
 fallback); system fonts are used instead.
 
 %prep
-%autosetup -n %{name}-%{version}
+%autosetup -n %{name}-%{commit}
 
 %build
 # Fedora's %%cargo_build macro expects a rust2rpm-style vendored registry.
@@ -94,5 +100,5 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
-* Thu Oct 08 2026 Dexxiez <toby@boulton.net.au> - 0.2.1-1
-- Initial package
+* Thu Oct 08 2026 Dexxiez <toby@boulton.net.au> - 0.2.1^20261008git6974c65-1
+- Initial package, snapshot of main

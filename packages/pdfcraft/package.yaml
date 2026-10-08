@@ -1,5 +1,4 @@
 name: pdfcraft
-upstream: storytold/pdfcraft
+git: https://github.com/storytold/pdfcraft
+branch: main
 auto: true
-tag_prefix: "v"
-skip_prerelease: true
