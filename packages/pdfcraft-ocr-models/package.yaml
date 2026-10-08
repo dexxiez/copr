@@ -1,0 +1,5 @@
+name: pdfcraft-ocr-models
+# No upstream/git: the ocrs models are static files (unchanged since
+# 2024-01-01) with no release feed. check_updates.py skips this package.
+# Bump by hand if pdfcraft's ATTRIBUTION.toml pins new SHA-256s.
+auto: false

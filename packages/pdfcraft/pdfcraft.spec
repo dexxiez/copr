@@ -13,12 +13,15 @@
 
 Name:           pdfcraft
 Version:        0.2.1^20261008git6974c65
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Open-source native PDF workbench
 
 License:        MIT OR Apache-2.0
 URL:            %{forgeurl}
 Source0:        %{forgeurl}/archive/%{commit}.tar.gz#/%{name}-%{shortcommit}.tar.gz
+# Also look for the OCR models in /usr/share/pdfcraft/models, where
+# pdfcraft-ocr-models installs them. Upstream only searches beside the binary.
+Patch0:         pdfcraft-system-models-dir.patch
 
 BuildRequires:  rust >= 1.90
 BuildRequires:  cargo
@@ -42,6 +45,8 @@ Recommends:     libXi.so.6()(64bit)
 Recommends:     libXrandr.so.2()(64bit)
 Recommends:     mesa-vulkan-drivers
 Recommends:     xdg-desktop-portal
+# Scan & OCR needs these; without them the feature asks for `cargo xtask models`.
+Recommends:     pdfcraft-ocr-models
 
 ExclusiveArch:  x86_64 aarch64
 
@@ -52,10 +57,11 @@ sign forms, organize, combine, split, edit, redact, protect and export PDFs.
 Includes pdfcraft-cli, a headless command runner and opt-in MCP server.
 
 This build does not embed the optional craft-fonts set (Japanese UI/type
-fallback); system fonts are used instead.
+fallback); system fonts are used instead. Text recognition (Scan & OCR)
+needs the pdfcraft-ocr-models package.
 
 %prep
-%autosetup -n %{name}-%{commit}
+%autosetup -p1 -n %{name}-%{commit}
 
 %build
 # Fedora's %%cargo_build macro expects a rust2rpm-style vendored registry.
@@ -100,5 +106,9 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Thu Oct 08 2026 Dexxiez <toby@boulton.net.au> - 0.2.1^20261008git6974c65-2
+- Look for OCR models in /usr/share/pdfcraft/models
+- Recommend pdfcraft-ocr-models
+
 * Thu Oct 08 2026 Dexxiez <toby@boulton.net.au> - 0.2.1^20261008git6974c65-1
 - Initial package, snapshot of main

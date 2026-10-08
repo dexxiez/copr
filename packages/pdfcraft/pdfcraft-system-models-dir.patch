@@ -1,0 +1,13 @@
+diff --git a/crates/ocr/src/lib.rs b/crates/ocr/src/lib.rs
+index f026f5b..f65d953 100644
+--- a/crates/ocr/src/lib.rs
++++ b/crates/ocr/src/lib.rs
+@@ -63,6 +63,8 @@ impl Models {
+             dirs.push(exe.join("models"));
+             dirs.push(exe.join("../Resources/models"));
+         }
++        // Distro packaging: the pdfcraft-ocr-models RPM installs here.
++        dirs.push(PathBuf::from("/usr/share/pdfcraft/models"));
+         dirs.push(Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets/models"));
+         dirs
+     }
