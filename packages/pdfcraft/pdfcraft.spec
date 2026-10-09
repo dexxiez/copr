@@ -4,7 +4,7 @@
 # Snapshot of the main branch: upstream has not tagged a release since the
 # printcraft -> pdfcraft rename. check_updates.py rewrites `commit` and the
 # snapshot suffix of Version together; the base (before `^`) is bumped by hand.
-%global commit 1b62d47fa769cfd4c37a64c9933572fc5de52a1f
+%global commit 653f8268c28c43ec5fb4b42fff60123547e6d438
 %global shortcommit %(c=%{commit}; echo ${c:0:7})
 
 # Rust release builds carry no debug info by default, so an empty debuginfo
@@ -12,7 +12,7 @@
 %global debug_package %{nil}
 
 Name:           pdfcraft
-Version:        0.2.1^20261008git1b62d47
+Version:        0.2.1^20261009git653f826
 Release:        1%{?dist}
 Summary:        Open-source native PDF workbench
 
@@ -106,6 +106,9 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Fri Oct 09 2026 Dexxiez <toby@boulton.net.au> - 0.2.1^20261009git653f826-1
+- Update to 0.2.1^20261009git653f826
+
 * Thu Oct 08 2026 Dexxiez <toby@boulton.net.au> - 0.2.1^20261008git1b62d47-1
 - Update to 0.2.1^20261008git1b62d47
 
