@@ -4,8 +4,8 @@
 %global debug_package %{nil}
 
 Name:           river
-Version:        0.4.8
-Release:        2%{?dist}
+Version:        0.5.0
+Release:        1%{?dist}
 Summary:        Non-monolithic Wayland compositor
 
 # Compositor is GPL-3.0-only; protocol XML (protocols-devel) is MIT.
@@ -96,6 +96,9 @@ cp -a %{_builddir}/destdir/. %{buildroot}/
 %{_datadir}/river-protocols/
 
 %changelog
+* Sat Oct 10 2026 Dexxiez <toby@boulton.net.au> - 0.5.0-1
+- Update to 0.5.0
+
 * Thu Oct 08 2026 Dexxiez <toby@boulton.net.au> - 0.4.8-2
 - protocols-devel: require the devel packages river builds against
 

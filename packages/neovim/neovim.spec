@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:           neovim
-Version:        0.12.5
+Version:        0.12.6
 Release:        1%{?dist}
 Summary:        Vim-fork focused on extensibility and usability
 
@@ -99,5 +99,8 @@ VIMRUNTIME=%{buildroot}%{_datadir}/nvim/runtime \
 %{_libdir}/nvim/
 
 %changelog
+* Sat Oct 10 2026 Dexxiez <toby@boulton.net.au> - 0.12.6-1
+- Update to 0.12.6
+
 * Fri Aug 28 2026 Dexxiez <toby@boulton.net.au> - 0.12.5-1
 - Initial package
