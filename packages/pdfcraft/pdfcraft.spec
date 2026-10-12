@@ -1,27 +1,18 @@
 %global forgeurl https://github.com/storytold/pdfcraft
 %global app_id   ai.storyteller.pdfcraft
 
-# Snapshot of the main branch: upstream has not tagged a release since the
-# printcraft -> pdfcraft rename. check_updates.py rewrites `commit` and the
-# snapshot suffix of Version together; the base (before `^`) is bumped by hand.
-%global commit bbbe60015c571ebfc39708ee07777b89e267122a
-%global shortcommit %(c=%{commit}; echo ${c:0:7})
-
 # Rust release builds carry no debug info by default, so an empty debuginfo
 # subpackage would fail the build. Skip it.
 %global debug_package %{nil}
 
 Name:           pdfcraft
-Version:        0.2.1^20261011gitbbbe600
+Version:        0.6.0
 Release:        1%{?dist}
 Summary:        Open-source native PDF workbench
 
 License:        MIT OR Apache-2.0
 URL:            %{forgeurl}
-Source0:        %{forgeurl}/archive/%{commit}.tar.gz#/%{name}-%{shortcommit}.tar.gz
-# Also look for the OCR models in /usr/share/pdfcraft/models, where
-# pdfcraft-ocr-models installs them. Upstream only searches beside the binary.
-Patch0:         pdfcraft-system-models-dir.patch
+Source0:        %{forgeurl}/archive/v%{version}/%{name}-%{version}.tar.gz
 
 BuildRequires:  rust >= 1.90
 BuildRequires:  cargo
@@ -34,9 +25,11 @@ BuildRequires:  appstream
 
 # Windowing (X11/Wayland, xkbcommon) and the GPU (Vulkan, EGL) are loaded at
 # runtime with dlopen, so rpm's dependency generator can't see them. These
-# mirror upstream's packaging/linux/nfpm.yaml.
+# mirror upstream's packaging/linux/nfpm.yaml. Printing shells out to CUPS's
+# lpstat/lp; without it the Print dialog still offers Save as PDF.
 Requires:       libxkbcommon.so.0()(64bit)
 Requires:       (libvulkan.so.1()(64bit) or libEGL.so.1()(64bit))
+Recommends:     cups-client
 Recommends:     libwayland-client.so.0()(64bit)
 Recommends:     libX11.so.6()(64bit)
 Recommends:     libX11-xcb.so.1()(64bit)
@@ -45,7 +38,8 @@ Recommends:     libXi.so.6()(64bit)
 Recommends:     libXrandr.so.2()(64bit)
 Recommends:     mesa-vulkan-drivers
 Recommends:     xdg-desktop-portal
-# Scan & OCR needs these; without them the feature asks for `cargo xtask models`.
+# Scan & OCR needs these; upstream looks in <bindir>/../share/pdfcraft/models,
+# which is where pdfcraft-ocr-models installs them.
 Recommends:     pdfcraft-ocr-models
 
 ExclusiveArch:  x86_64 aarch64
@@ -61,7 +55,7 @@ fallback); system fonts are used instead. Text recognition (Scan & OCR)
 needs the pdfcraft-ocr-models package.
 
 %prep
-%autosetup -p1 -n %{name}-%{commit}
+%autosetup -n %{name}-%{version}
 
 %build
 # Fedora's %%cargo_build macro expects a rust2rpm-style vendored registry.
@@ -106,6 +100,11 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Mon Oct 12 2026 Dexxiez <toby@boulton.net.au> - 0.6.0-1
+- Update to 0.6.0, track tagged releases instead of main
+- Drop system models dir patch, upstream now searches ../share/pdfcraft/models
+- Recommend cups-client for printing
+
 * Sun Oct 11 2026 Dexxiez <toby@boulton.net.au> - 0.2.1^20261011gitbbbe600-1
 - Update to 0.2.1^20261011gitbbbe600
 
