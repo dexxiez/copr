@@ -63,7 +63,7 @@ def release_tags(repo: str, forge: str = "github", skip_prerelease: bool = True)
         return []
     try:
         releases = api(FORGE_RELEASES[forge].format(repo=repo))
-    except urllib.error.HTTPError as e:
+    except (urllib.error.URLError, TimeoutError) as e:
         print(f"  ! {forge} API error for {repo}: {e}", file=sys.stderr)
         return []
     tags = []
