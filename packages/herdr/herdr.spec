@@ -17,7 +17,7 @@
 %endif
 
 Name:           herdr
-Version:        0.9.3
+Version:        0.9.4
 Release:        1%{?dist}
 Summary:        Terminal workspace manager for AI coding agents
 
@@ -105,6 +105,9 @@ target/release/%{name} --version
 %{_datadir}/fish/vendor_completions.d/%{name}.fish
 
 %changelog
+* Wed Oct 14 2026 Dexxiez <toby@boulton.net.au> - 0.9.4-1
+- Update to 0.9.4
+
 * Wed Sep 30 2026 Dexxiez <toby@boulton.net.au> - 0.9.3-1
 - Update to 0.9.3
 
