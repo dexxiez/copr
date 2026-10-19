@@ -1,0 +1,5 @@
+name: figcraft
+upstream: storytold/figcraft
+auto: true
+tag_prefix: "v"
+skip_prerelease: true

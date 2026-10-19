@@ -1,0 +1,5 @@
+name: vectorcraft
+upstream: storytold/vectorcraft
+auto: true
+tag_prefix: "v"
+skip_prerelease: true
