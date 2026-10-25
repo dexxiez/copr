@@ -1,0 +1,5 @@
+name: wb32-dfu-updater
+upstream: WestberryTech/wb32-dfu-updater
+auto: true
+tag_prefix: "v"
+skip_prerelease: true
