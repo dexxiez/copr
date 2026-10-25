@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:           pdfcraft
-Version:        0.13.0
+Version:        0.14.0
 Release:        1%{?dist}
 Summary:        Open-source native PDF workbench
 
@@ -100,6 +100,9 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Sun Oct 25 2026 Dexxiez <toby@boulton.net.au> - 0.14.0-1
+- Update to 0.14.0
+
 * Fri Oct 23 2026 Dexxiez <toby@boulton.net.au> - 0.13.0-1
 - Update to 0.13.0
 

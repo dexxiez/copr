@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:           gridcraft
-Version:        0.11.1
+Version:        0.12.1
 Release:        1%{?dist}
 Summary:        Open-source native spreadsheet
 
@@ -93,6 +93,9 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Sun Oct 25 2026 Dexxiez <toby@boulton.net.au> - 0.12.1-1
+- Update to 0.12.1
+
 * Fri Oct 23 2026 Dexxiez <toby@boulton.net.au> - 0.11.1-1
 - Update to 0.11.1
 
