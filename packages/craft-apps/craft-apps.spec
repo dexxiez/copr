@@ -1,6 +1,6 @@
 Name:           craft-apps
 Version:        1.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Metapackage for Artcraft
 License:        MIT
 BuildArch:      noarch
@@ -10,10 +10,8 @@ Requires:       photocraft
 Requires:       pdfcraft
 Requires:       wordcraft
 Requires:       gridcraft
-
-# Soft dependencies (installed by default, but can be excluded)
-Suggests:       figcraft
-Suggests:       vectorcraft
+Requires:       figcraft
+Requires:       vectorcraft
 
 %description
 A metapackage that aggregates dependencies to install Artcraft
@@ -32,5 +30,8 @@ apps.
 # Intentionally empty: no files are packaged
 
 %changelog
+* Tue Oct 26 2026 Dexxiez <toby@boulton.net.au> - 1.0.0-2
+- Switched deps categories
+
 * Tue Oct 20 2026 Dexxiez <toby@boulton.net.au> - 1.0.0-1
 - Initial metapackage release
