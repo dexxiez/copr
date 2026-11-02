@@ -1,7 +1,7 @@
 %global forgeurl https://github.com/hyprwm/hyprpicker
 
 Name:           hyprpicker
-Version:        0.4.7
+Version:        0.4.8
 Release:        1%{?dist}
 Summary:        A wlroots-compatible Wayland color picker
 
@@ -54,5 +54,8 @@ wlroots-compatible compositor and needs nothing from Hyprland itself.
 %{_mandir}/man1/%{name}.1*
 
 %changelog
+* Mon Nov 02 2026 Dexxiez <toby@boulton.net.au> - 0.4.8-1
+- Update to 0.4.8
+
 * Mon Oct 05 2026 Dexxiez <toby@boulton.net.au> - 0.4.7-1
 - Initial package
