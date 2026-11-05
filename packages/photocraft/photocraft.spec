@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:           photocraft
-Version:        0.20.1
+Version:        0.20.2
 Release:        1%{?dist}
 Summary:        Open-source native image editor with layered PSD support
 
@@ -96,6 +96,9 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Thu Nov 05 2026 Dexxiez <toby@boulton.net.au> - 0.20.2-1
+- Update to 0.20.2
+
 * Tue Nov 03 2026 Dexxiez <toby@boulton.net.au> - 0.20.1-1
 - Update to 0.20.1
 
