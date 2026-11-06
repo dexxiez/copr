@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:           wordcraft
-Version:        0.15.2
+Version:        0.16.0
 Release:        1%{?dist}
 Summary:        Open-source native word processor
 
@@ -94,6 +94,9 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Fri Nov 06 2026 Dexxiez <toby@boulton.net.au> - 0.16.0-1
+- Update to 0.16.0
+
 * Thu Nov 05 2026 Dexxiez <toby@boulton.net.au> - 0.15.2-1
 - Update to 0.15.2
 
