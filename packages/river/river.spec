@@ -4,7 +4,7 @@
 %global debug_package %{nil}
 
 Name:           river
-Version:        0.5.0
+Version:        0.5.2
 Release:        1%{?dist}
 Summary:        Non-monolithic Wayland compositor
 
@@ -96,6 +96,9 @@ cp -a %{_builddir}/destdir/. %{buildroot}/
 %{_datadir}/river-protocols/
 
 %changelog
+* Tue Nov 10 2026 Dexxiez <toby@boulton.net.au> - 0.5.2-1
+- Update to 0.5.2
+
 * Sat Oct 10 2026 Dexxiez <toby@boulton.net.au> - 0.5.0-1
 - Update to 0.5.0
 
