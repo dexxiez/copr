@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:           vectorcraft
-Version:        0.23.0
+Version:        0.24.0
 Release:        1%{?dist}
 Summary:        Open-source native vector illustration app
 
@@ -93,6 +93,9 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Wed Nov 11 2026 Dexxiez <toby@boulton.net.au> - 0.24.0-1
+- Update to 0.24.0
+
 * Mon Nov 09 2026 Dexxiez <toby@boulton.net.au> - 0.23.0-1
 - Update to 0.23.0
 
