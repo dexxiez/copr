@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:           figcraft
-Version:        0.17.0
+Version:        0.18.1
 Release:        1%{?dist}
 Summary:        Open-source native interface design and prototyping tool
 
@@ -95,6 +95,9 @@ target/release/%{name}-cli --version
 %{_datadir}/icons/hicolor/*/apps/%{app_id}.*
 
 %changelog
+* Thu Nov 12 2026 Dexxiez <toby@boulton.net.au> - 0.18.1-1
+- Update to 0.18.1
+
 * Mon Nov 09 2026 Dexxiez <toby@boulton.net.au> - 0.17.0-1
 - Update to 0.17.0
 
