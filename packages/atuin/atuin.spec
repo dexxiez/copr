@@ -5,7 +5,7 @@
 %global debug_package %{nil}
 
 Name:           atuin
-Version:        18.23.0
+Version:        18.24.8
 Release:        1%{?dist}
 Summary:        Magical shell history with search, sync and stats
 
@@ -84,6 +84,9 @@ target/release/%{name} --version
 %{_datadir}/fish/vendor_completions.d/%{name}.fish
 
 %changelog
+* Fri Nov 13 2026 Dexxiez <toby@boulton.net.au> - 18.24.8-1
+- Update to 18.24.8
+
 * Tues Sep 15 2026 Dexxiez <toby@boulton.net.au> - 18.22.0-1
 - Bump 
 
