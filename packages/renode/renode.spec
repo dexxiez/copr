@@ -14,7 +14,7 @@
 
 Name:           renode
 Version:        1.17.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Virtual development framework for complex embedded systems
 
 License:        MIT
@@ -23,14 +23,17 @@ URL:            https://renode.io
 # packages and renode-resources.
 Source0:        %{forgeurl}/releases/download/v%{version}/%{name}_%{version}_source.tar.xz
 
-BuildRequires:  dotnet-sdk-8.0
+# .NET 8 is EOL and absent from Fedora 45; build for .NET 10 instead of
+# upstream's default net8.0 TFM.
+%global dotnet_ver 10.0
+BuildRequires:  dotnet-sdk-%{dotnet_ver}
 BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  cmake
 BuildRequires:  make
 BuildRequires:  desktop-file-utils
 
-Requires:       dotnet-runtime-8.0
+Requires:       dotnet-runtime-%{dotnet_ver}
 Requires:       gtk3
 Requires:       webkit2gtk4.1
 # Mirrors the dependencies of upstream's own fpm-built RPM.
@@ -54,7 +57,7 @@ This package does not include renode-test (the Robot Framework test runner).
 %prep
 %autosetup -n %{name}_%{version}_source
 # The bundled NuGet cache was restored with whatever SDK upstream used, so
-# its targeting/ref packs won't match Fedora's dotnet-sdk-8.0 patch level.
+# its targeting/ref packs won't match Fedora's dotnet SDK patch level.
 # Keep the local cache first and fall back to nuget.org for the rest, which
 # COPR's buildroots permit.
 sed -i 's|<add key="local-packages" value="./nuget" />|&\n    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />|' NuGet.Config
@@ -69,7 +72,7 @@ export NUGET_PACKAGES="%{_builddir}/.nuget"
 # ("invalid digest") unless this override is set.
 export OPENSSL_ENABLE_SHA1_SIGNATURES=1
 # Without a .git directory build.sh skips submodule/resource fetching.
-./build.sh
+./build.sh -F net%{dotnet_ver}
 
 %install
 out=output/bin/Release
@@ -120,5 +123,8 @@ dotnet %{buildroot}%{instdir}/bin/Renode.dll --version
 %{_datadir}/icons/hicolor/*/apps/renode.*
 
 %changelog
+* Sat Nov 14 2026 Dexxiez <toby@boulton.net.au> - 1.17.0-2
+- Build against .NET 10 (.NET 8 is gone in Fedora 45)
+
 * Mon Oct 26 2026 Dexxiez <toby@boulton.net.au> - 1.17.0-1
 - Initial package
