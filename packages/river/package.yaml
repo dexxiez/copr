@@ -2,3 +2,6 @@ name: river
 upstream: river/river
 forge: codeberg
 auto: true
+# 0.5.2+ requires Zig 0.17; Fedora ships 0.16. Drop the pin once
+# `dnf info zig` in fedora:latest reports 0.17.
+pin: "0.5.1"

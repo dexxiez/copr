@@ -4,7 +4,7 @@
 %global debug_package %{nil}
 
 Name:           river
-Version:        0.5.2
+Version:        0.5.1
 Release:        1%{?dist}
 Summary:        Non-monolithic Wayland compositor
 
@@ -17,7 +17,8 @@ Source0:        %{forgeurl}/releases/download/v%{version}/%{name}-%{version}.tar
 Source1:        %{forgeurl}/releases/download/v%{version}/%{name}-%{version}.tar.gz.sig
 Source2:        gpgkey-5FBDF84DD2278DB2B8AD8A5286DED400DDFD7A11.asc
 
-# River only builds with the latest Zig minor release (0.16 at time of writing).
+# River only builds with the latest Zig minor release. 0.5.2+ needs Zig 0.17,
+# which Fedora does not ship yet, so package.yaml pins 0.5.1 (Zig 0.16).
 BuildRequires:  zig >= 0.16
 BuildRequires:  zig < 0.17
 BuildRequires:  scdoc
@@ -96,6 +97,9 @@ cp -a %{_builddir}/destdir/. %{buildroot}/
 %{_datadir}/river-protocols/
 
 %changelog
+* Fri Nov 13 2026 Dexxiez <toby@boulton.net.au> - 0.5.1-1
+- Hold at 0.5.1: 0.5.2 only moves to Zig 0.17, which Fedora lacks
+
 * Tue Nov 10 2026 Dexxiez <toby@boulton.net.au> - 0.5.2-1
 - Update to 0.5.2
 
