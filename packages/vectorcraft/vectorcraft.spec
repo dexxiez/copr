@@ -57,7 +57,12 @@ fallback); system fonts are used instead.
 export CARGO_HOME="%{_builddir}/.cargo"
 # Only set if the macro exists, so an older buildroot doesn't end up with a
 # literal "%%{build_rustflags}" in RUSTFLAGS.
-%{?build_rustflags:export RUSTFLAGS="%{build_rustflags}"}
+#
+# Fedora's flags force -Cdebuginfo=2 and -Ccodegen-units=1 on every crate.
+# The debuginfo is thrown away (debug_package is off) and single-unit codegen
+# serialises each crate. Together they pushed COPR builds from ~1h to past the
+# 5h timeout on slower builders. Later -C flags win, so override both.
+%{?build_rustflags:export RUSTFLAGS="%{build_rustflags} -Cdebuginfo=0 -Ccodegen-units=16"}
 cargo build --release --locked --package %{name} --package %{name}-cli
 
 %install
