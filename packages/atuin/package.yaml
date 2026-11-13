@@ -1,6 +1,5 @@
 name: atuin
 upstream: atuinsh/atuin
-auto: false
+auto: true
 tag_prefix: "v"
-pin: "18.23.0"
 skip_prerelease: true
