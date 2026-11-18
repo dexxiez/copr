@@ -1,0 +1,5 @@
+name: python-jinjanator-plugins
+upstream: kpfleming/jinjanator-plugins
+auto: true
+tag_prefix: ""
+skip_prerelease: true

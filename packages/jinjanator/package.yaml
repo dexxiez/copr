@@ -1,0 +1,5 @@
+name: jinjanator
+upstream: kpfleming/jinjanator
+auto: true
+tag_prefix: ""
+skip_prerelease: true
