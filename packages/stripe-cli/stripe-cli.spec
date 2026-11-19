@@ -6,7 +6,7 @@
 %global debug_package %{nil}
 
 Name:           stripe-cli
-Version:        1.55.13
+Version:        1.55.14
 Release:        1%{?dist}
 Summary:        Command-line tool for building, testing and managing Stripe integrations
 
@@ -67,6 +67,9 @@ install -d %{buildroot}%{_datadir}/fish/vendor_completions.d
 %{_datadir}/fish/vendor_completions.d/stripe.fish
 
 %changelog
+* Thu Nov 19 2026 Dexxiez <toby@boulton.net.au> - 1.55.14-1
+- Update to 1.55.14
+
 * Wed Nov 18 2026 Dexxiez <toby@boulton.net.au> - 1.55.13-1
 - Update to 1.55.13
 
