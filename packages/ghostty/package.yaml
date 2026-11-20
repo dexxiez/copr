@@ -1,0 +1,8 @@
+name: ghostty
+upstream: ghostty-org/ghostty
+# Upstream tags versions but only publishes a rolling "tip" GitHub release, so
+# the release checker finds nothing to compare. Each bump also has to check the
+# bundled Zig version in the spec (build.zig.zon's minimum_zig_version).
+auto: false
+tag_prefix: "v"
+skip_prerelease: true
