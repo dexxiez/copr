@@ -99,7 +99,8 @@ jobs:
         id: srpm
         run: |
           chmod +x scripts/build_srpm.sh
-          echo "path=$(./scripts/build_srpm.sh '${{ matrix.package }}' | tail -n1)" >> "$GITHUB_OUTPUT"
+          ./scripts/build_srpm.sh '${{ matrix.package }}' > srpm.out || { cat srpm.out; exit 1; }
+          echo "path=$(tail -n1 srpm.out)" >> "$GITHUB_OUTPUT"
 
       - name: Submit to COPR
         run: copr-cli build --nowait "${{ vars.COPR_PROJECT }}" "${{ steps.srpm.outputs.path }}"
