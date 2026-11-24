@@ -13,8 +13,8 @@
 %global __provides_exclude_from ^%{instdir}/.*$
 
 Name:           renode
-Version:        1.17.0
-Release:        2%{?dist}
+Version:        1.17.1
+Release:        1%{?dist}
 Summary:        Virtual development framework for complex embedded systems
 
 License:        MIT
@@ -123,6 +123,9 @@ dotnet %{buildroot}%{instdir}/bin/Renode.dll --version
 %{_datadir}/icons/hicolor/*/apps/renode.*
 
 %changelog
+* Tue Nov 24 2026 Dexxiez <toby@boulton.net.au> - 1.17.1-1
+- Update to 1.17.1
+
 * Sat Nov 14 2026 Dexxiez <toby@boulton.net.au> - 1.17.0-2
 - Build against .NET 10 (.NET 8 is gone in Fedora 45)
 
